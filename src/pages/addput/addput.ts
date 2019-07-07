@@ -3,7 +3,7 @@ import { IonicPage, NavController, NavParams, LoadingController, AlertController
 import { CommfuncProvider } from '../../providers/commfunc/commfunc';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
-
+import { Storage } from '@ionic/storage';
 @IonicPage()
 @Component({
   selector: 'page-addput',
@@ -20,7 +20,7 @@ export class AddputPage {
   itemCode:string;
   itemQty:string;
   putID:string;
-
+  strPutNo :string;
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
@@ -28,10 +28,11 @@ export class AddputPage {
     private loadingCtrl: LoadingController,
     private myFunc: CommfuncProvider,
     public alertCtrl: AlertController,
+    private storage: Storage,
 )
  {
     this.intPutDetailsID = this.navParams.get("putDetailsID");
-  //  this.strPutNo = this.navParams.get("putNo");
+    this.strPutNo = this.navParams.get("putNo");
     console.log(this.intPutDetailsID);
 }
 
@@ -83,34 +84,32 @@ export class AddputPage {
     if(this.hfScanBoxQR === this.scanBoxQR && this.hfScanRackQR === this.scanRackQR){
       alert("submit");
       let data: Observable<any>;
-      let url = this.myFunc.domainURL + 'handlers/putMaster.ashx?mode=insPut&putID='+ this.putID + "&rackQR=" + this.scanRackQR + "&itemCode=" + this.scanBoxQR + "&itemName=" + this.itemName + "&itemQty=" + this.itemQty + "&userName=user1" + "&putDetailsID=" + this.intPutDetailsID;
-      // let queryParams = JSON.stringify({ 
-      //   putID: this.putID,
-      //   rackQR: this.scanRackQR,
-      //   itemCode: this.scanBoxQR,
-      //   itemName: this.itemName,
-      //   itemQty: this.itemQty,
-      //   userName: "user1",
-      //   putDetailsID: this.intPutDetailsID,
-      //  });
-  
-      let loader = this.loadingCtrl.create({
-        content: 'Inserting Data'
-      });
-  
-      data = this.http.post(url, "");
-      loader.present().then(() => {
-        data.subscribe(result => {
-          alert("success");
-          console.log(result);         
-          
-          loader.dismiss();
-        }, error => {
-          alert("failure");
-          console.log(error);
-          loader.dismiss();
+      let url = '';
+      this.storage.get('lsUserName').then((lsUserName) => {
+         url = this.myFunc.domainURL + 'handlers/putMaster.ashx?mode=insPut&putID='+ this.putID + "&rackQR=" + this.scanRackQR + "&itemCode=" + this.scanBoxQR + "&itemName=" + this.itemName + "&itemQty=" + this.itemQty + "&userName=" + lsUserName + "&putDetailsID=" + this.intPutDetailsID + "&putNo=" + this.strPutNo;
+         let loader = this.loadingCtrl.create({
+          content: 'Inserting Data'
+        });
+        data = this.http.post(url, "");
+        loader.present().then(() => {
+          data.subscribe(result => {
+            //alert("success");
+            if(result===null){
+              //this.navCtrl.pop();
+              this.navCtrl.setRoot("HomePage");
+            }
+
+            console.log(result);         
+            
+            loader.dismiss();
+          }, error => {
+            alert("failure");
+            console.log(error);
+            loader.dismiss();
+          });
         });
       });
+      
     }else{
       this.alertMsgFn('Invalid Bar Code !...........');
     }

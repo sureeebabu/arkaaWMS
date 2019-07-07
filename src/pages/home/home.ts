@@ -21,6 +21,10 @@ export class HomePage {
 
   ionViewDidLoad() {
   }
+
+  goToLog(){
+    this.navCtrl.push('LogPage');
+  }
   
  
 

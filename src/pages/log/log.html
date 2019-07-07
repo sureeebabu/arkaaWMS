@@ -1,0 +1,14 @@
+<ion-header>
+  <ion-navbar color="primary" >
+    <ion-title>Log</ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+    <ion-card *ngFor="let l of logJson">
+        <ion-item>
+            <h2><span><b>Put No  : </b></span>{{l.putNo}} </h2>
+            <h2><span><b>Date : </b></span>{{l.currentDate}} </h2>
+        </ion-item>        
+    </ion-card>
+</ion-content>

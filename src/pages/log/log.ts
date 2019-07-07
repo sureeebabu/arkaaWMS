@@ -1,46 +1,39 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams, LoadingController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, LoadingController, AlertController } from 'ionic-angular';
 import { CommfuncProvider } from '../../providers/commfunc/commfunc';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
+import { Storage } from '@ionic/storage';
 
 @IonicPage()
 @Component({
-  selector: 'page-putdetails',
-  templateUrl: 'putdetails.html',
+  selector: 'page-log',
+  templateUrl: 'log.html',
 })
-export class PutdetailsPage {
-  putDetailsJson: any = [];
-  public intPutID;
-  public strPutNo:string;
+export class LogPage {
+  logJson:any =[];
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
     private http: HttpClient,
     private loadingCtrl: LoadingController,
-    private myFunc: CommfuncProvider
+    private myFunc: CommfuncProvider,
+    public alertCtrl: AlertController,
+    private storage: Storage,
 )
  {
-   this.intPutID = this.navParams.get("putID");
-   this.strPutNo = this.navParams.get("putNo");
-   console.log(this.intPutID);
-}
-
-goToAddPutDetails(putDetailsID,putNo){
-  this.navCtrl.push('AddputPage',{
-    "putDetailsID" : putDetailsID ,
-    "putNo" :putNo
-  });
-}
-
-  ionViewDidLoad() {
-    this.getPutDetailsyID(this.intPutID);
   }
 
-  getPutDetailsyID(putID) {
+  ionViewDidLoad() {
+    this.storage.get('lsUserName').then((lsUserName) => {
+      this.getLogData(lsUserName)    
+    });    
+  }
+
+  getLogData(userName){
     let data: Observable<any>;
     // alert(custCode);
-    let url = this.myFunc.domainURL + "handlers/putMaster.ashx?mode=selectByID&putID=" + putID;
+    let url = this.myFunc.domainURL + "handlers/putMaster.ashx?mode=selLog&userName=" + userName;
     let loader = this.loadingCtrl.create({
       content: 'Fetching Data From Server...'
     });
@@ -48,7 +41,7 @@ goToAddPutDetails(putDetailsID,putNo){
     loader.present().then(() => {
       data.subscribe(result => {
         console.log(result);
-        this.putDetailsJson = result;
+        this.logJson = result;       
         loader.dismiss();
       }, error => {
         loader.dismiss();
